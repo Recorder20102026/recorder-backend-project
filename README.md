@@ -41,7 +41,8 @@ npm run start:dev
 
 Set `DATABASE_URL` in the Vercel project's environment variables, then deploy.
 The Vercel function serves the same endpoints and Swagger UI as the local
-NestJS server.
+NestJS server. Vercel is configured to include Swagger UI's static assets in
+the function bundle; redeploy after changing `vercel.json`.
 
 ```sh
 npm run build

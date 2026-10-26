@@ -5,6 +5,9 @@
       "maxDuration": 10
     }
   },
+  "outputFileTracingIncludes": {
+    "/api/**/*": ["./node_modules/swagger-ui-dist/**"]
+  },
   "rewrites": [
     {
       "source": "/(.*)",
