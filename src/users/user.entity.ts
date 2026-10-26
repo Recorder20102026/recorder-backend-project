@@ -4,8 +4,8 @@ export class UserEntity {
   @ApiProperty({ example: '0d5d5bf4-7c47-49a9-8852-fdb77fa5f8a3' })
   id!: string;
 
-  @ApiProperty({ example: 'jane_doe' })
-  username!: string;
+  @ApiProperty({ example: 'Jane Doe' })
+  name!: string;
 
   @ApiProperty({ example: 'jane@example.com' })
   email!: string;

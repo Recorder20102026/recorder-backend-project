@@ -7,12 +7,23 @@ documentation is available at `/api-docs`.
 
 | Method | Path | Description |
 | --- | --- | --- |
-| `GET` | `/users` | Get all users |
+| `GET` | `/users` | Get all users; optionally filter with `name`, `email`, and/or `id` query parameters |
+| `POST` | `/users` | Create a user with exactly `name` and `email` |
+| `PUT` | `/users/:id` | Replace a user's `name` and `email` |
+| `PATCH` | `/users/:id` | Update either or both of `name` and `email` |
 | `GET` | `/products` | Get all products |
 | `GET` | `/products/name/:name` | Get products matching the exact name |
 
-The name endpoint returns an array because product names are not necessarily
-unique.
+Example user body: `{"name":"Temp 1","email":"temp.1@example"}`. The API's
+`name` field is stored in the database's `username` column.
+
+Only the documented query parameters and body fields are accepted. Unknown
+parameters, extra body fields, missing required fields, empty PATCH bodies, and
+invalid field types return HTTP 400. An unknown URL or unsupported HTTP method
+returns HTTP 404. Updating a user ID that does not exist returns HTTP 404.
+
+The product-by-name endpoint returns an array because product names are not
+necessarily unique.
 
 ## Configuration
 
