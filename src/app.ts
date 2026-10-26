@@ -10,12 +10,12 @@ export async function createApp(): Promise<NestExpressApplication> {
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Recorder Backend API')
-    .setDescription('Read users and products from Supabase')
+    .setDescription('Read users and products from the PostgreSQL database')
     .setVersion('1.0')
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('docs', app, document);
+  SwaggerModule.setup('api-docs', app, document);
 
   return app;
 }
