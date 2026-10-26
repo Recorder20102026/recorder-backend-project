@@ -11,7 +11,7 @@ export class UsersController {
   @Get()
   @ApiOperation({ summary: 'Get all users' })
   @ApiOkResponse({ type: [UserEntity] })
-  findAll() {
+  findAll(): Promise<UserEntity[]> {
     return this.usersService.findAll();
   }
 }

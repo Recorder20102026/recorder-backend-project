@@ -20,13 +20,15 @@ Use Node.js 22 or newer.
 
 Copy `.env.example` to `.env` and set:
 
-- `SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY` — keep this secret; configure it as a Vercel
-  environment variable for deployment.
+- `DATABASE_URL` — the PostgreSQL connection string from Supabase. Keep it
+  secret; configure it as a Vercel environment variable for deployment. For
+  Vercel/serverless deployments, use the Supabase pooler connection string
+  rather than a direct database connection string.
 - `PORT` — optional; defaults to `3000` for local development.
 
-The API selects only the columns in the provided schema. Configure Supabase
-RLS and credentials according to your deployment's access requirements.
+The API uses a PostgreSQL connection directly, so a Supabase API or service
+role key is not needed. The database role in the connection string must have
+permission to read the `users` and `products` tables.
 
 ## Run locally
 
@@ -37,9 +39,9 @@ npm run start:dev
 
 ## Vercel
 
-Set `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in the Vercel project's
-environment variables, then deploy. The Vercel function serves the same
-endpoints and Swagger UI as the local NestJS server.
+Set `DATABASE_URL` in the Vercel project's environment variables, then deploy.
+The Vercel function serves the same endpoints and Swagger UI as the local
+NestJS server.
 
 ```sh
 npm run build

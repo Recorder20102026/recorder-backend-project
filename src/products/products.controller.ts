@@ -16,7 +16,7 @@ export class ProductsController {
   @Get()
   @ApiOperation({ summary: 'Get all products' })
   @ApiOkResponse({ type: [ProductEntity] })
-  findAll() {
+  findAll(): Promise<ProductEntity[]> {
     return this.productsService.findAll();
   }
 
@@ -24,7 +24,7 @@ export class ProductsController {
   @ApiOperation({ summary: 'Get products matching an exact name' })
   @ApiParam({ name: 'name', example: 'Notebook' })
   @ApiOkResponse({ type: [ProductEntity] })
-  findByName(@Param('name') name: string) {
+  findByName(@Param('name') name: string): Promise<ProductEntity[]> {
     return this.productsService.findByName(name);
   }
 }

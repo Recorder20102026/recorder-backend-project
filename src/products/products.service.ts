@@ -1,98 +1,62 @@
 import {
-  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { SupabaseClient } from '@supabase/supabase-js';
-import { Database } from '../database.types';
-import { SUPABASE_CLIENT } from '../supabase/supabase.module';
+import { QueryResultRow } from 'pg';
+import { DatabaseService } from '../database/database.service';
+import { ProductEntity } from './product.entity';
 
-const PAGE_SIZE = 1000;
+interface ProductRow extends QueryResultRow {
+  id: string;
+  name: string;
+  price: number;
+  stock: number;
+  created_at: Date;
+}
 
 @Injectable()
 export class ProductsService {
   private readonly logger = new Logger(ProductsService.name);
 
-  constructor(
-    @Inject(SUPABASE_CLIENT)
-    private readonly supabase: SupabaseClient<Database>,
-  ) {}
+  constructor(private readonly database: DatabaseService) {}
 
-  async findAll() {
-    const products: Database['public']['Tables']['products']['Row'][] = [];
-    let offset = 0;
-    let totalCount: number | null = null;
-
-    do {
-      const { data, error, count } = await this.supabase
-        .from('products')
-        .select('id, name, price, stock, created_at', { count: 'exact' })
-        .range(offset, offset + PAGE_SIZE - 1);
-
-      if (error) {
-        this.logger.error(`Supabase products query failed: ${error.message}`);
-        throw new InternalServerErrorException('Unable to retrieve products');
-      }
-
-      if (data === null || count === null) {
-        throw new InternalServerErrorException(
-          'Supabase returned incomplete product data',
-        );
-      }
-
-      if (data.length === 0 && offset < count) {
-        throw new InternalServerErrorException(
-          'Supabase product pagination made no progress',
-        );
-      }
-
-      products.push(...data);
-      offset += data.length;
-      totalCount = count;
-    } while (offset < totalCount);
-
-    return products;
+  async findAll(): Promise<ProductEntity[]> {
+    try {
+      const { rows } = await this.database.query<ProductRow>(
+        'SELECT id, name, price::float8 AS price, stock, created_at FROM public.products',
+      );
+      return rows.map((row) => ({
+        ...row,
+        created_at: row.created_at.toISOString(),
+      }));
+    } catch (error) {
+      this.logger.error(
+        'PostgreSQL products query failed',
+        error instanceof Error ? error.stack : String(error),
+      );
+      throw new InternalServerErrorException('Unable to retrieve products');
+    }
   }
 
-  async findByName(name: string) {
-    const products: Database['public']['Tables']['products']['Row'][] = [];
-    let offset = 0;
-    let totalCount: number | null = null;
-
-    do {
-      const { data, error, count } = await this.supabase
-        .from('products')
-        .select('id, name, price, stock, created_at', { count: 'exact' })
-        .eq('name', name)
-        .range(offset, offset + PAGE_SIZE - 1);
-
-      if (error) {
-        this.logger.error(
-          `Supabase product name query failed: ${error.message}`,
-        );
-        throw new InternalServerErrorException(
-          'Unable to retrieve products by name',
-        );
-      }
-
-      if (data === null || count === null) {
-        throw new InternalServerErrorException(
-          'Supabase returned incomplete product data',
-        );
-      }
-
-      if (data.length === 0 && offset < count) {
-        throw new InternalServerErrorException(
-          'Supabase product name pagination made no progress',
-        );
-      }
-
-      products.push(...data);
-      offset += data.length;
-      totalCount = count;
-    } while (offset < totalCount);
-
-    return products;
+  async findByName(name: string): Promise<ProductEntity[]> {
+    try {
+      const { rows } = await this.database.query<ProductRow>(
+        'SELECT id, name, price::float8 AS price, stock, created_at FROM public.products WHERE name = $1',
+        [name],
+      );
+      return rows.map((row) => ({
+        ...row,
+        created_at: row.created_at.toISOString(),
+      }));
+    } catch (error) {
+      this.logger.error(
+        'PostgreSQL product name query failed',
+        error instanceof Error ? error.stack : String(error),
+      );
+      throw new InternalServerErrorException(
+        'Unable to retrieve products by name',
+      );
+    }
   }
 }
